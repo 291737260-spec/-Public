@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMI & 腰高比健康评估</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(135deg,#e8f5e9,#e3f2fd);min-height:100vh;display:flex;justify-content:center;padding:24px 16px}
+.c{background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,.08);max-width:480px;width:100%;padding:36px 28px}
+h1{text-align:center;font-size:22px;color:#1a1a2e;margin-bottom:4px}
+.sub{text-align:center;font-size:13px;color:#888;margin-bottom:28px}
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:14px;font-weight:600;color:#333;margin-bottom:6px}
+.fg .h{font-weight:400;font-size:12px;color:#999}
+.row{display:flex;gap:10px}
+.row .fg{flex:1}
+input,select{width:100%;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;outline:none;background:#fafafa;transition:border .2s}
+input:focus,select:focus{border-color:#4caf50}
+.btn{width:100%;padding:12px;background:linear-gradient(135deg,#4caf50,#2196f3);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-top:8px;transition:transform .1s}
+.btn:active{transform:scale(.98)}
+.result{display:none;margin-top:24px}
+.rc{background:#f5f5f5;border-radius:14px;padding:18px;margin-bottom:14px}
+.rc h3{font-size:15px;color:#555;margin-bottom:10px}
+.rv{font-size:36px;font-weight:700;text-align:center;margin:8px 0}
+.rl{text-align:center;font-size:14px;font-weight:600;padding:4px 14px;border-radius:20px;display:inline-block}
+.rv.green{color:#4caf50} .rv.yellow{color:#ff9800} .rv.orange{color:#f44336} .rv.red{color:#d32f2f}
+.rl.green{background:#e8f5e9;color:#2e7d32} .rl.yellow{background:#fff3e0;color:#e65100} .rl.orange{background:#fbe9e7;color:#bf360c} .rl.red{background:#ffebee;color:#b71c1c}
+.advice{background:linear-gradient(135deg,#e8f5e9,#e3f2fd);border-radius:14px;padding:18px;font-size:14px;line-height:1.8;color:#333}
+.advice strong{color:#1a1a2e}
+.footer{text-align:center;margin-top:20px;font-size:11px;color:#bbb}
+</style>
+</head>
+<body>
+<div class="c">
+<h1>🏥 BMI & 腰高比健康评估</h1>
+<p class="sub">基于世界卫生组织（WHO）标准</p>
+<div class="fg">
+<label>性别</label>
+<select id="gender">
+<option value="male">男性</option>
+<option value="female">女性</option>
+</select>
+</div>
+<div class="row">
+<div class="fg"><label>身高 <span class="h">(cm)</span></label><input type="number" id="height" placeholder="如 170" min="50" max="250" step="0.1"></div>
+<div class="fg"><label>体重 <span class="h">(kg)</span></label><input type="number" id="weight" placeholder="如 65" min="20" max="300" step="0.1"></div>
+</div>
+<div class="fg">
+<label>腰围 <span class="h">(cm) — 自然站立，平脐水平测量</span></label>
+<input type="number" id="waist" placeholder="如 80" min="40" max="200" step="0.1">
+</div>
+<button class="btn" onclick="calc()">开始评估</button>
+<div class="result" id="result">
+<div class="rc">
+<h3>📐 身体质量指数（BMI）</h3>
+<div class="rv" id="bmiVal"></div>
+<div style="text-align:center"><span class="rl" id="bmiLabel"></span></div>
+<div style="margin-top:10px;font-size:12px;color:#888;text-align:center" id="bmiRange"></div>
+</div>
+<div class="rc">
+<h3>📏 腰高比（WHtR）</h3>
+<div class="rv" id="whtrVal"></div>
+<div style="text-align:center"><span class="rl" id="whtrLabel"></span></div>
+<div style="margin-top:10px;font-size:12px;color:#888;text-align:center" id="whtrRange"></div>
+</div>
+<div class="advice" id="advice"></div>
+</div>
+<p class="footer">⚠️ 本工具仅供参考，不构成医疗建议。如有健康疑虑请咨询专业医生。</p>
+</div>
+<script>
+function calc(){
+  var h=parseFloat(document.getElementById('height').value);
+  var w=parseFloat(document.getElementById('weight').value);
+  var wc=parseFloat(document.getElementById('waist').value);
+  if(!h||!w||!wc||h<50||h>250||w<20||w>300||wc<40||wc>200){alert('请填写完整且合理的身体数据');return}
+  var hm=h/100;
+  var bmi=w/(hm*hm);
+  var whtr=wc/h;
+  var bc,bl;
+  if(bmi<18.5){bc='green';bl='偏瘦'}
+  else if(bmi<25){bc='green';bl='正常'}
+  else if(bmi<30){bc='yellow';bl='超重'}
+  else if(bmi<35){bc='orange';bl='肥胖 I 级'}
+  else if(bmi<40){bc='red';bl='肥胖 II 级'}
+  else{bc='red';bl='肥胖 III 级'}
+  document.getElementById('bmiVal').textContent=bmi.toFixed(1);
+  document.getElementById('bmiVal').className='rv '+bc;
+  document.getElementById('bmiLabel').textContent=bl;
+  document.getElementById('bmiLabel').className='rl '+bc;
+  document.getElementById('bmiRange').textContent='WHO标准：偏瘦<18.5 | 正常18.5-24.9 | 超重25-29.9 | 肥胖≥30';
+  var wc2,wl;
+  if(whtr<0.4){wc2='green';wl='非常健康'}
+  else if(whtr<0.5){wc2='green';wl='健康'}
+  else if(whtr<0.6){wc2='yellow';wl='临界风险'}
+  else{wc2='red';wl='高风险'}
+  document.getElementById('whtrVal').textContent=whtr.toFixed(3);
+  document.getElementById('whtrVal').className='rv '+wc2;
+  document.getElementById('whtrLabel').textContent=wl;
+  document.getElementById('whtrLabel').className='rl '+wc2;
+  document.getElementById('whtrRange').textContent='WHO标准：健康<0.5 | 临界0.5-0.59 | 高风险≥0.6';
+  var a='';
+  if(bmi<18.5&&whtr<0.5){
+    a='<strong>📋 综合评估：体重偏轻，腰高比正常</strong><br>您整体偏瘦，但腹部脂肪分布正常。建议：<br>• 适当增加优质蛋白和碳水摄入<br>• 结合力量训练增强肌肉<br>• 关注是否存在营养不良或消化系统问题';
+  }else if(bmi>=18.5&&bmi<25&&whtr<0.5){
+    a='<strong>📋 综合评估：BMI正常，腰高比健康 ✅</strong><br>恭喜！您的体重和腹部脂肪分布均处于健康范围。建议：<br>• 保持均衡饮食和规律运动<br>• 定期体检，维持当前健康状态';
+  }else if(bmi>=18.5&&bmi<25&&whtr>=0.5){
+    a='<strong>📋 综合评估：BMI正常，但腰高比偏高 ⚠️</strong><br>虽然BMI在正常范围，但腹部脂肪偏多（"隐性肥胖"）。内脏脂肪过多同样增加心血管疾病和代谢综合征风险。建议：<br>• 增加有氧运动，重点减腹部脂肪<br>• 减少精制碳水和含糖饮料<br>• 避免久坐，保持日常活动量';
+  }else if(bmi>=25&&bmi<30&&whtr<0.5){
+    a='<strong>📋 综合评估：超重，但腰高比正常</strong><br>您体重偏重但腹部脂肪尚可，可能与肌肉量较多有关。建议：<br>• 确认是否为肌肉含量高（如健身人群）<br>• 适当控制饮食，减少体脂率<br>• 继续保持运动习惯';
+  }else if(bmi>=25&&bmi<30&&whtr>=0.5&&whtr<0.6){
+    a='<strong>📋 综合评估：超重，腰高比临界 ⚠️</strong><br>体重超标且腹部脂肪开始堆积，心血管和代谢疾病风险上升。建议：<br>• 控制总热量摄入，减少高油高糖食物<br>• 每周至少150分钟中等强度有氧运动<br>• 定期监测血压、血糖、血脂';
+  }else if(bmi>=25&&bmi<30&&whtr>=0.6){
+    a='<strong>📋 综合评估：超重，腰高比高风险 🔴</strong><br>体重超标且腹部脂肪过多，心血管和代谢疾病风险显著增加。建议：<br>• 尽早调整饮食结构，控制热量<br>• 增加有氧运动频率和强度<br>• 建议就医评估代谢指标';
+  }else if(bmi>=30&&whtr<0.5){
+    a='<strong>📋 综合评估：肥胖，但腰高比正常</strong><br>虽属肥胖范围，但腹部脂肪分布尚可。建议：<br>• 在医生指导下制定减重计划<br>• 结合有氧与力量训练<br>• 关注代谢指标变化';
+}else if(bmi>=30&&whtr>=0.5&&whtr<0.6){
+a='<strong>📋 综合评估：肥胖，腰高比临界 🔴</strong><br>肥胖且腹部脂肪较多，代谢综合征风险高。建议：<br>• 尽早就医，全面评估代谢健康<br>• 在专业指导下科学减重<br>• 严格控制饮食，增加运动量<br>• 监测血压、血糖、血脂等指标';
+}else if(bmi>=30&&whtr>=0.6){
+a='<strong>📋 综合评估：肥胖，腰高比高风险 🔴🔴</strong><br>肥胖且腹部脂肪严重过多，心血管疾病和代谢综合征风险极高。建议：<br>• 尽快就医，进行全面健康评估<br>• 在医生指导下制定减重方案<br>• 严格控制热量摄入，避免高油高糖食物<br>• 循序渐进增加运动，避免运动损伤<br>• 定期监测各项代谢指标';
+}else if(bmi<18.5&&whtr>=0.5){
+a='<strong>📋 综合评估：体重偏轻，但腰高比偏高 ⚠️</strong><br>虽然整体偏瘦，但腹部脂肪相对偏多，可能存在"瘦胖子"情况。建议：<br>• 增加优质蛋白摄入，改善肌肉量<br>• 进行力量训练提高基础代谢<br>• 减少久坐，增加日常活动<br>• 关注内分泌和代谢健康';
+}else{
+a='<strong>📋 综合评估：请咨询专业医生</strong><br>您的数据组合较特殊，建议到医院进行专业体脂和代谢评估。';
+}
+document.getElementById('advice').innerHTML=a;
+document.getElementById('result').style.display='block';
+document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body>
+</html>
